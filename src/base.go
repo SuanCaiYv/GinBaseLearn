@@ -95,3 +95,36 @@ func FileUpload() {
 	})
 	r.Run(":8190")
 }
+
+func MiddleWare() {
+	r := gin.New()
+	r.GET("/test1", func(context *gin.Context) {
+		wrapStr(context, "ok")
+	})
+	// 对所有/a开头的请求进行拦截
+	auth := r.Group("/a")
+	// 类似于添加请求拦截器
+	auth.Use(func(context *gin.Context) {
+		fmt.Println("need auth")
+	})
+	// 这个花括号就是为了美观
+	// 在这里处理所有以/a为开头的请求
+	{
+		auth.POST("/signIn", func(context *gin.Context) {
+			username := context.PostForm("username")
+			password := context.PostForm("password")
+			context.JSON(200, gin.H{
+				"username": username,
+				"password": password,
+			})
+		})
+	}
+	// 统一拦截和书写位置无关
+	r.GET("/test2", func(context *gin.Context) {
+		wrapStr(context, "ok")
+	})
+	r.Use(gin.CustomRecovery(func(context *gin.Context, err interface{}) {
+		// 在这里编写panic处理逻辑
+	}))
+	r.Run(":8190")
+}
