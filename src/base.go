@@ -13,6 +13,7 @@ func wrapStr(context *gin.Context, str string) {
 // CRUD 比较简单的RESTFul格式的请求
 func CRUD() {
 	router := gin.Default()
+	// 每个请求一个Context
 	router.GET("/isGet", func(context *gin.Context) {
 		context.String(200, "%s", "ok")
 	})
