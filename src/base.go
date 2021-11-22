@@ -2,8 +2,10 @@ package src
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"reflect"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func wrapStr(context *gin.Context, str string) {
@@ -70,6 +72,19 @@ func GetAndPost() {
 			"names": names,
 		})
 	})
+	r.POST("/json", func(context *gin.Context) {
+		var input map[string]interface{}
+		if err := context.Bind(&input); err != nil {
+			fmt.Printf("got an error: %v\n", err)
+		}
+		fmt.Println(input["name"])
+		fmt.Println(input["age"])
+		file, err := context.FormFile("file")
+		if err != nil {
+			fmt.Printf("got an error: %v\n", err)
+		}
+		fmt.Println(file.Filename)
+	})
 	r.Run(":8190")
 }
 
@@ -127,5 +142,20 @@ func MiddleWare() {
 	r.Use(gin.CustomRecovery(func(context *gin.Context, err interface{}) {
 		// 在这里编写panic处理逻辑
 	}))
+	r.Run(":8190")
+}
+
+func OnlyForTest() {
+	r := gin.New()
+	r.POST("/json", func(context *gin.Context) {
+		var input map[string]interface{}
+		err := context.Bind(&input)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(input["name"])
+		fmt.Println(reflect.TypeOf(input["users"].([]interface{})[0]))
+		wrapStr(context, "ok")
+	})
 	r.Run(":8190")
 }
